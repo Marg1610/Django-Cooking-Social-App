@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h1 class="text-center">Избранное</h1>
+
+    <div class="row mt-4">
+      {% for recipe in favorite_recipes %}
+      <div class="col-md-4">
+        <div class="card mb-3">
+          <img src="{{ recipe.image.url }}" class="img-fluid card-img-top" style="object-fit: cover; height: 250px">
+          <div class="card-body" style="min-height: 150px">
+            <a href="{% url 'recipe_detail' recipe.id %}"><h5 class="card-title">{{ recipe.title }}</h5></a>
+            <div class="recipe-tags">
+              {% for tag in recipe.tags.all %}
+                <span class="badge badge-pill" style="background-color: {{ tag.tag_type.color }}">{{ tag.name }}</span>
+              {% empty %}
+                <span>Нет тегов</span>
+              {% endfor %}
+            </div>
+            <p class="card-text">{{ recipe.description|truncatechars:60 }}</p>
+          </div>
+          <div class="card-footer">
+            <small class="text-muted">
+              Автор: <a href="{% url 'profile_view' recipe.author.id %}">{{ recipe.author.first_name|default:recipe.author.username }}</a><br>
+              Рейтинг: {{ recipe.get_rating }}<br>
+              В избранном: {{recipe.get_favorites_count}}<br>
+              Дата публикации: {{ recipe.publication_date|date:"d M Y" }}<br>
+            </small>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+        <p>Нет избранных рецептов.</p>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

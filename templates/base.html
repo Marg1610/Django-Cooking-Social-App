@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        {% load static %}
+        <link rel="stylesheet" href="{% static 'css/style.css' %}">
+        <link rel="stylesheet" href="{% static 'css/base.css' %}">
+        <!-- CKEditor -->
+        {% block extra_body %}
+        <script src="{% static 'ckeditor/ckeditor/ckeditor.js' %}"></script>
+        <script src="{% static 'ckeditor/js/adapter/jquery.js' %}"></script>
+        {% endblock %}
+        <!-- Bootstrap4 -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    </head>
+    <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
+        <a class="navbar-brand" href="{% url 'index' %}">CookingWeb</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+          <ul class="nav">
+            <li class="nav-item">
+              <a class="nav-link nav-link-latest" href="{% url 'index' %}?sort=latest" style="color: white">Последние</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link nav-link-popular" href="{% url 'index' %}?sort=popular" style="color: white">Популярные</a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'recipe_create' %}" style="color: white">Написать рецепт</a>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'login' %}" style="color: white">Написать рецепт</a>
+            </li>
+            {% endif %}
+          </ul>          
+          <ul class="navbar-nav ml-auto">
+
+            {% if user.is_authenticated %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'recipe_create' %}">Написать рецепт</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'profile_view' user.id %}">{{ user.first_name|default:user.username }}</a>
+              </li>
+              <li class="nav-item">
+                <form method="post" action="{% url 'logout' %}">
+                  {% csrf_token %}
+                  <button type="submit" class="nav-link btn-link">Выйти</button>
+                </form>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'login' %}">Войти</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="{% url 'register' %}">Зарегистрироваться</a>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+      </div>
+    </nav>     
+          {% block content %}
+          {% endblock %}
+    </body>
+</html>

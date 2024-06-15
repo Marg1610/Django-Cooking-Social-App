@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Рецепты{% endblock %}
+
+{% block content %}
+
+<div class="container mx-auto">
+    <div class="container mt-5">
+        <form method="get" action="{% url 'search' %}" class="mt-4">
+          <div class="form-row">
+            <div class="col">
+              <input type="text" name="query" class="form-control" placeholder="Поиск по названию рецепта">
+            </div>
+            <div class="col-auto">
+              <button type="submit" class="btn btn-primary">Искать</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    <hr>
+    <div class="row">
+    {% for recipe in recipes %}
+    <div class="col-md-4">
+        <div class="card mb-4">
+          <img src="{{ recipe.image.url }}" class="img-fluid card-img-top" style="object-fit: cover; height: 200px">
+          <div class="card-body" style="min-height:176px">
+            <span class="badge badge-pill badge-dark position-absolute" style="top: 10px; right: 10px;">{{ recipe.cooking_time }} мин.</span>
+                      <a href="{% url 'recipe_detail' recipe.id %}"><h5 class="card-title">{{ recipe.title }}</h5></a>
+            <div class="recipe-tags mt-3">
+              {% for tag in recipe.tags.all|slice:":5" %}
+                <span class="badge badge-pill" style="background-color: {{ tag.tag_type.color }}">{{ tag.name }}</span>
+              {% empty %}
+                <span>Нет тегов</span>
+              {% endfor %}
+              {% if recipe.tags.count > 5 %}
+                <span class="badge badge-pill">...</span>
+              {% endif %}
+            </div>
+            
+            <p class="card-text">{{ recipe.description|truncatechars:60 }}</p>
+          </div>
+          <div class="card-footer">
+            <small class="text-muted">
+              Автор: <a href="{% url 'profile_view' recipe.author.id %}">{{ recipe.author.first_name|default:recipe.author.username }}</a><br>
+              Рейтинг: {{ recipe.get_rating }}<br>
+              В избранном: {{recipe.get_favorites_count}}<br>
+              Дата публикации: {{ recipe.publication_date|date:"d M Y" }}<br>
+            </small>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+        <div class="col-12">
+            <p>Нет рецептов</p>
+        </div>
+    {% endfor %}
+    </div>
+    <nav aria-label="Page navigation" class="d-flex justify-content-center">
+      <ul class="pagination">
+        {% if recipes.has_previous %}
+          <li class="page-item"><a class="page-link" href="?sort={{ sort }}&page={{ recipes.previous_page_number }}">Предыдущая</a></li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Предыдущая</span></li>
+        {% endif %}
+    
+        {% for num in recipes.paginator.page_range %}
+          {% if recipes.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+          {% else %}
+            <li class="page-item"><a class="page-link" href="?sort={{ sort }}&page={{ num }}">{{ num }}</a></li>
+          {% endif %}
+        {% endfor %}
+    
+        {% if recipes.has_next %}
+          <li class="page-item"><a class="page-link" href="?sort={{ sort }}&page={{ recipes.next_page_number }}">Следующая</a></li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">Следующая</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+    
+</div>
+
+{% endblock %}
