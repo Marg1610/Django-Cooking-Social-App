@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="container mt-5">
+    <h1 class="text-center">{{ user.first_name }}</h1>
+
+    {% if request.user == user %}
+      <a href="{% url 'profile_update' %}" class="btn btn-secondary">Редактировать профиль</a>
+      <a href="{% url 'favorites' %}" class="btn btn-info" >Избранное</a>
+
+    {% endif %}
+
+    <div class="container mx-auto">
+      <div class="container mt-5">
+        <h6>Написанные рецепты</h6>
+        <hr class="mt-4 mb-4">
+        <div class="row">
+          {% for recipe in user_recipes %}
+          <div class="col-md-4">
+              <div class="card mb-4">
+                <img src="{{ recipe.image.url }}" class="img-fluid card-img-top" style="object-fit: cover; height: 200px">
+                <div class="card-body" style="min-height:176px">
+                  <a href="{% url 'recipe_detail' recipe.id %}"><h5 class="card-title">{{ recipe.title }}</h5></a>
+                  <div class="recipe-tags mt-3">
+                    {% for tag in recipe.tags.all|slice:":5" %}
+                      <span class="badge badge-pill" style="background-color: {{ tag.tag_type.color }}">{{ tag.name }}</span>
+                    {% empty %}
+                      <span>Нет тегов</span>
+                    {% endfor %}
+                    {% if recipe.tags.count > 5 %}
+                      <span class="badge badge-pill">...</span>
+                    {% endif %}
+                  </div>
+                  
+                  <p class="card-text">{{ recipe.description|truncatechars:60 }}</p>
+                </div>
+                <div class="card-footer">
+                  <small class="text-muted">
+                    Автор: <a href="{% url 'profile_view' recipe.author.id %}">{{ recipe.author.first_name|default:recipe.author.username }}</a><br>
+                    Рейтинг: {{ recipe.get_rating }}<br>
+                    В избранном: {{recipe.get_favorites_count}}<br>
+                    Дата публикации: {{ recipe.publication_date|date:"d M Y" }}<br>
+                  </small>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+              <div class="col-12">
+                  <p>Ничего нет.</p>
+              </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

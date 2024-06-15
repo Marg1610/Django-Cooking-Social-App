@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col-md-8">
+        <h3 class="text-center text-md-left">{{ recipe.title }}</h3>
+        {% if request.user == recipe.author %}
+          <a href="{% url 'recipe_update' recipe.id %}" class="btn btn-secondary">Редактировать рецепт</a>
+          <a class="btn btn-danger" href="{% url 'recipe_delete' recipe.pk %}" role="button">Удалить</a>
+        {% endif %}
+      <hr></div>
+      <div class="col-md-4 text-right">
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col-md-4">
+        {% if recipe.image %}
+          <img src="{{ recipe.image.url }}" alt="{{ recipe.title }}" class="img-fluid img-square" style="object-fit: cover; height: 300px;">
+        {% else %}
+          <img src="{{ STATIC_URL }} 'images/no_image.png' %}" alt="No image" class="img-fluid" style="object-fit: cover; height: 300px;">
+        {% endif %}
+      </div>
+      <div class="col-md-6">
+        <p><strong>Описание:</strong> {{ recipe.description }}</p>
+        <p><strong>Время приготовления:</strong> {{ recipe.cooking_time }}</p>
+        <p><strong>Автор: </strong> <a href="{% url 'profile_view' recipe.author.id %}">{{ recipe.author.first_name|default:recipe.author.username }}</a></p>
+        <p><strong>Рейтинг:</strong> {{ recipe.get_rating }}</p>
+        <div class="recipe-tags mt-3">
+          {% for tag in recipe.tags.all %}
+            <span class="badge badge-pill" style="background-color: {{ tag.tag_type.color }}">{{ tag.name }}</span>
+          {% empty %}
+            <span>Нет тегов</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="row mt-4">
+      <div class="col-md-12">
+        <h2>Приготовление</h2>
+        {{ recipe.content|safe }}
+        <hr>
+      </div>
+    {% if request.user.is_authenticated %}
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="favorite_btn">
+      {% if is_favorited %}
+        <button type="submit" class="btn btn-danger">Убрать из избранного</button>
+      {% else %}
+        <button type="submit" class="btn btn-primary">В избранное</button>
+      {% endif %}
+    </form>
+  {% else %}
+    <a href="{% url 'login' %}" class="btn btn-primary">В избранное</a>
+  {% endif %}
+  <div class="d-flex align-items-center">
+  {% if request.user.is_authenticated %}
+  <form action="{% url 'like_recipe' recipe.pk %}" method="post">
+    {% csrf_token %}
+    {% if user_rating == 1 %}
+      <button type="submit" class="btn btn-success ml-2">Нравится</button>
+    {% else %}
+      <button type="submit" class="btn btn-secondary ml-2">Нравится</button>
+    {% endif %}
+  </form>
+  <form action="{% url 'dislike_recipe' recipe.pk %}" method="post">
+    {% csrf_token %}
+    {% if user_rating == -1 %}
+      <button type="submit" class="btn btn-danger ml-2">Не нравится</button>
+    {% else %}
+      <button type="submit" class="btn btn-secondary ml-2">Не нравится</button>
+    {% endif %}
+  </form>
+  {% else %}
+    <a href="{% url 'login' %}" class="btn btn-secondary ml-2">Нравится</a>
+    <a href="{% url 'login' %}" class="btn btn-secondary ml-2">Не нравится</a>
+{% endif %}
+</div>
+    </div>
+
+{% endblock %}

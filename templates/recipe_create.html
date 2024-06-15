@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+  <div class="container mt-6">
+    <h1 class="text-center">Создать рецепт</h1>
+    <form method="post" enctype="multipart/form-data" class="mt-4 form-group">
+      {% csrf_token %}
+      <div class="form-group">
+        {{ form.title|as_crispy_field }}
+      </div>
+      <div class="form-group">
+        {{ form.description|as_crispy_field }}
+      </div>
+      <div class="form-group">
+        {{ form.cooking_time|as_crispy_field }}
+      </div>
+      {% for field in form %}
+      {% if 'tags_' in field.name %}
+          {{ field.label_tag }}
+          {{ field }}
+      {% endif %}
+    {% endfor %}
+      <div class="form-group">
+        {{ form.image|as_crispy_field }}
+      </div>
+      <STYLE></STYLE>
+      <div class="form-group">
+        {{ form.content }}
+      </div>
+      <button type="submit" class="btn btn-primary">Подтвердить</button>
+    </form>
+  </div>
+{% endblock %}
+
+{% block extra_body %}
+  {{ form.media }}
+{% endblock %}
